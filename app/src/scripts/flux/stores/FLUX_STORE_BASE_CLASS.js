@@ -61,6 +61,7 @@ class FluxBaseClass extends EventEmitter {
     }
   }
 
+  // FIXME: Uh, why are we wrapping the builtin functions and not changing them?
   emitChange ( changeMask ) {
     this.emit( this.CHANGE_EVENT, changeMask );
   }
