@@ -9,7 +9,10 @@ import _ from "lodash";
 import TWBS from "react-bootstrap";
 import moment from "moment";
 
+import EventBus from "../components/EventBus";
 import Icon from "../components/Icon";
+
+import ContextCalendar from "../context/ContextCalendar";
 
 function createMonth ( time = moment() ) {
   let today = moment();
@@ -39,8 +42,37 @@ const Calendar = React.createClass(
         , selectedDay  : now.date()
         , monthContent : createMonth( now )
         , mode         : "month"
+        , dropZones    : false
         }
       );
+    }
+
+  , componentDidMount () {
+      EventBus.addListener( "dragStart", this.showDropZones );
+      EventBus.addListener( "dragStop", this.hideDropZones );
+      EventBus.emit( "showContextPanel", ContextCalendar );
+    }
+
+  , componentWillUnmount () {
+      EventBus.removeListener( "dragStart", this.showDropZones );
+      EventBus.removeListener( "dragStop", this.hideDropZones );
+      EventBus.emit( "hideContextPanel", ContextCalendar );
+    }
+
+  , showDropZones: function ( type ) {
+      if ( type === "calendarItem" ) {
+        this.setState({ dropZones: true });
+      }
+    }
+
+  , hideDropZones: function () {
+      this.setState({ dropZones: false });
+    }
+
+  , handleDrop: function ( event ) {
+      console.log( event );
+      console.log( event.target );
+      console.log( EventBus.resolveDrag() );
     }
 
   , handlePage: function ( direction ) {
@@ -94,20 +126,27 @@ const Calendar = React.createClass(
 
   , dayMonth: function ( contents, index ) {
       let dayClass = [ "day" ];
+
       if ( contents ) {
         if ( contents["today"] ) {
           dayClass.push( "today" );
         }
       }
+
       if ( index + 1 === this.state.selectedDay ) {
         dayClass.push( "selected" );
       }
 
+      if ( this.state.dropZones ) {
+        dayClass.push( "droppable" );
+      }
+
       return (
         <div
-          key={ index }
-          className= { dayClass.join( " " ) }
-          onClick = { this.selectDay.bind( null, index + 1 ) }
+          key       = { index }
+          className = { dayClass.join( " " ) }
+          onClick   = { this.selectDay.bind( null, index + 1 ) }
+          onMouseUp = { this.state.dropZones ? this.handleDrop : null }
         >
           <span className="day-content">
             <span className="day-numeral">{ index + 1 }</span>
