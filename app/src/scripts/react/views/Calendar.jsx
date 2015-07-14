@@ -9,10 +9,10 @@ import _ from "lodash";
 import TWBS from "react-bootstrap";
 import moment from "moment";
 
-import EventBus from "../components/EventBus";
+import EventBus from "../../utility/EventBus";
 import Icon from "../components/Icon";
 
-import ContextCalendar from "../context/ContextCalendar";
+import ContextCalendar from "./Calendar/ContextCalendar";
 
 function createMonth ( time = moment() ) {
   let today = moment();
